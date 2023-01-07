@@ -1,0 +1,21 @@
+{% load bootstrap4 %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ page_title }}</title>
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery='full' %}
+</head>
+<body>
+{% bootstrap_messages %}
+<h2>{{ page_title }}</h2>
+{% block content %}
+    To fill by views
+{% endblock %}
+{% block footer %}
+    Created by Konstantin Kuklin and Lasse Broer 2022
+{% endblock %}
+</body>
+</html>

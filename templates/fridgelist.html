@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <a href="{% url 'fridge_list' pk=0 %}" class="btn btn-primary">Create new fridge list</a>
+    <a href="" class="btn btn-primary">Show full shopping list</a>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+        <tr>
+            <th>Title</th>
+        </tr>
+        </thead>
+
+        {% for fridgeList in fridgeLists %}
+            <tr>
+                <td><a href="{% url 'fridge_list' pk=fridgeList.id %}">{{ fridgeList.title }}</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
