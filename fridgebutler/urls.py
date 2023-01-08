@@ -19,14 +19,15 @@ from fridge.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', login, name='account'),
-    path('account', login, name='account'),
-    path('register', register, name='registration'),
-    path('fridge_list/', get_fridge_lists, name='fridge_list'),
-    path('fridge_edit/<int:pk>', edit_fridge_list, name='fridge_edit'),
-    path('fridge_edit', edit_fridge_list, name='fridge_create'),
-    path('/delete/<int:pk>', delete_fridge, name='delete_fridge'),
-    path('<int:fridgePk>/fridge_items/', get_fridge_entries, name='fridge_items'),
-    path('/item_create/', edit_fridge_entry, name='item_create'),
-    path('item_edit/<int:itemPk>', edit_fridge_entry, name='item_edit'),
+    path('', login_redirect),
+    path('profile/login/', login, name='login'),
+    # To be reworked for proper user management
+    path('registerTest/', register, name='registrationDummy'),
+    path('profile', get_fridge_lists, name='fridge_list'),
+    path('profile/fridge/<int:pk>/fridge_edit', edit_fridge_list, name='fridge_edit'),
+    path('profile/fridge_create', edit_fridge_list, name='fridge_create'),
+    path('profile/fridge/<int:pk>/fridge_delete', delete_fridge, name='delete_fridge'),
+    path('profile/fridge/<int:fridgePk>/fridge_items/', get_fridge_entries, name='fridge_items'),
+    path('profile/fridge/<int:fridgePk>/item_create/', edit_fridge_entry, name='item_create'),
+    path('profile/fridge/<int:fridgePk>/item_edit/<int:itemPk>', edit_fridge_entry, name='item_edit'),
 ]

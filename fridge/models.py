@@ -2,6 +2,31 @@ from django.db import models
 import datetime
 
 # Create your models here.
+MEASUREMENT_UNITS = (
+    (1, 'piece(s)'),
+    (2, 'ml'),
+    (3, 'l'),
+    (4, 'mg'),
+    (5, 'g'),
+    (6, 'kg')
+)
+
+CATEGORIES = (
+    (1, 'Fruits'),
+    (2, 'Vegetables'),
+    (3, 'Legumes'),
+    (4, 'Grains & Cereals'),
+    (5, 'Bread'),
+    (6, 'Meat & Eggs'),
+    (7, 'Fish & Seafood'),
+    (8, 'Dairy products'),
+    (9, 'Beverages'),
+    (10, 'Desserts, Snacks & Sweets'),
+    (11, 'Prepared food'),
+    (12, 'Instant food'),
+    (13, 'Spices')
+)
+
 class Account(models.Model):
     # ID added as PK automatically upon creation in DB
     username = models.CharField(max_length=60)
@@ -22,9 +47,9 @@ class FridgeEntry(models.Model):
 
     # ID added as PK automatically upon creation in DB
     title = models.CharField(max_length=60)
-    category = models.CharField(max_length=60)
+    category = models.IntegerField(choices=CATEGORIES)
     quantity = models.IntegerField()
-    quantityType = models.CharField(max_length=60)
+    quantityType = models.IntegerField(choices=MEASUREMENT_UNITS, default=1)
     expirationDate = models.DateField(default=datetime.date.today())
     # If open - check in category dict if long term or short term consumtion. If later max 3 days until expired
     openedDate = models.DateField(blank=True, null=True)

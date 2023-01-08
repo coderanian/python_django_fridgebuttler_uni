@@ -1,7 +1,6 @@
 from django.forms import *
 from fridge.models import *
 
-
 class LoginForm(ModelForm):
     class Meta:
         model = Account
@@ -19,4 +18,5 @@ class FridgeListForm(ModelForm):
 class FridgeEntryForm(ModelForm):
     class Meta:
         model = FridgeEntry
-        exclude = ()
+        exclude = ('fridgeList', 'expiringSoon', 'expired')
+

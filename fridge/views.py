@@ -9,6 +9,9 @@ from django.views.generic import ListView
 
 
 # Create your views here.
+def login_redirect(request):
+    return redirect('login')
+
 def login(request):
     form = LoginForm()
     return render(request, "account.html", {'page_title': 'Login into your account', 'form': form})
@@ -20,8 +23,8 @@ def register(request):
     if form.is_valid():
         form.save()
         messages.success(request, 'Registration completed!')
-        return HttpResponseRedirect(reverse_lazy('account'))
-    return render(request, "fridge_list/../templates/register.html", {'page_title': 'Registration', 'form': form})
+        return HttpResponseRedirect(reverse_lazy('login'))
+    return render(request, "registrationDummy", {'page_title': 'Registration', 'form': form})
 
 
 def get_fridge_lists(request):
@@ -43,7 +46,7 @@ def edit_fridge_list(request, pk=None):
         if form.is_valid():
             form.save()
             messages.success(request, 'Fridge list saved!')
-            return HttpResponseRedirect(reverse_lazy('fridge_list'))
+            return redirect('fridge_list')
     else:
         form = FridgeListForm(instance=fridgeList)
     return render(request, "fridge_list/edit_fridge.html", {'page_title': 'Edit fridge list', 'form': form})
@@ -52,29 +55,38 @@ def edit_fridge_list(request, pk=None):
 def delete_fridge(request, pk=None):
     fridge = FridgeList.objects.get(pk=pk)
     fridge.delete()
-    return HttpResponseRedirect(reverse_lazy('fridge_list'))
+    return redirect(request.META.get('HTTP_REFERER'))
 
 
 def get_fridge_entries(request, fridgePk=None):
     fridge = FridgeList.objects.get(pk=fridgePk)
     items = fridge.fridge.all()
     if len(items) == 0:
-        return redirect('item_create')
-    return render(request, 'fridge.html', {'page_title': f'Currently stored in {fridge.title}', 'fridgeEntries': items})
+        return redirect('item_create', fridgePk=fridgePk)
+    return render(request, 'fridge_items', {'page_title': f'Currently stored in {fridge.title}', 'fridgeEntries': items})
 
 
-def edit_fridge_entry(request, pkItem=None, fridgePk=None):
-    if pkItem:
-        fridgeEntry = FridgeEntry.objects.get(pk=pkItem)
+def edit_fridge_entry(request, itemPk=None, fridgePk=None):
+    if itemPk:
+        fridgeEntry = FridgeEntry.objects.get(pk=itemPk)
     else:
         fridgeEntry = FridgeEntry()
     if request.method == 'POST':
-        fridge = FridgeList.objects.get(pk=fridgePk)
-        form = FridgeEntryForm(request.POST, instance=fridgeEntry, initial={'firdgeList': fridge.id})
+        form = FridgeEntryForm(request.POST, instance=fridgeEntry)
         if form.is_valid():
-            form.save()
+            #newItem = form.save(commit=False)
+            #newItem.fridgeList = FridgeList.objects.get(pk=fridgePk)
+            newItem.save()
             messages.success(request, 'Fridge entry saved!')
-            return HttpResponseRedirect(reverse_lazy(f'{fridgePk}/fridge_items'))
+            return redirect(request.META.get('HTTP_REFERER'))
     else:
-        form = FridgeListForm(instance=fridgeEntry)
+        form = FridgeEntryForm(instance=fridgeEntry)
     return render(request, "edit_fridge_item.html", {'page_title': 'Edit fridge item', 'form': form})
+
+
+def delete_item(request, pkItem=None):
+    item = FridgeEntry.objects.get(pk=pkItem)
+    item.delete()
+    return HttpResponseRedirect(reverse_lazy('fridge_items'))
+
+
