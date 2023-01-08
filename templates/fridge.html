@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <a href="{% url 'item_create' %}" class="btn btn-primary">Add new entry</a>
-    <td><a href="" class="btn btn-primary">Shopping list</a></td>
+    <a href="{% url 'item_create' fridgePk=fridgeId%} " class="btn btn-primary">Add new entry</a>
+    <a href="{% url 'shop_items' fridgePk=fridgeId%}" class="btn btn-primary">Shopping list</a>
+    <a href="{% url 'fridge_list'%}" class="btn btn-primary">Show every fridge</a>
     <table class="table table-striped">
         <thead class="thead-dark">
         <tr>
@@ -18,9 +19,11 @@
                 <td>{{ fridgeEntry.title }}</td>
                 <td>{{ fridgeEntry.categorystr }}</td>
                 <td>{{ fridgeEntry.quantitystr }}</td>
-                <td><a href="{% url 'item_edit' itemPk=fridgeEntry.id fridgePk=fridgeEntry.fridgeList.id %}" class="btn btn-primary">Details</a></td>
-                <td><a href="" class="btn btn-primary">Add to shopping list</a></td>
-                <td><a href="{% url 'item_delete' itemPk=fridgeEntry.id fridgePk=fridgeEntry.fridgeList.id %}" class="btn btn-primary">Delete</a></td>
+                <td><a href="{% url 'item_edit' itemPk=fridgeEntry.id fridgePk=fridgeEntry.fridgeList.id %}"
+                       class="btn btn-primary">Details</a></td>
+                <td><a href="{% url 'add_to_shopping_list' itemPk=fridgeEntry.id fridgePk=fridgeEntry.fridgeList.id%}" class="btn btn-primary">Add to shopping list</a></td>
+                <td><a href="{% url 'item_delete' itemPk=fridgeEntry.id fridgePk=fridgeEntry.fridgeList.id %}"
+                       class="btn btn-primary">Delete</a></td>
             </tr>
         {% endfor %}
     </table>

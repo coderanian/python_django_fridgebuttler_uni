@@ -27,6 +27,7 @@ CATEGORIES = (
     (13, 'Spices')
 )
 
+
 class Account(models.Model):
     # ID added as PK automatically upon creation in DB
     username = models.CharField(max_length=60)
@@ -64,6 +65,7 @@ class FridgeEntry(models.Model):
     def categorystr(self):
         return "{}".format(dict(CATEGORIES).get(self.category))
 
+
 class BuyList(models.Model):
     # ID added as PK automatically upon creation in DB
     # Better fixed naming <FridgeList.title> Buy List
@@ -78,8 +80,14 @@ class BuyListEntry(models.Model):
 
     # ID added as PK automatically upon creation in DB
     title = models.CharField(max_length=60)
-    category = models.CharField(max_length=60)
+    category = models.IntegerField(choices=CATEGORIES)
     quantity = models.IntegerField()
-    quantityType = models.CharField(max_length=60)
+    quantityType = models.IntegerField(choices=MEASUREMENT_UNITS, default=1)
     # Check if in fridge list by querying Name & Category in FrdigeEntry on FridgeList on BuyList on BuyListEntry
-    buyList = models.ForeignKey(FridgeList, on_delete=models.CASCADE)
+    fridgeList = models.ForeignKey(FridgeList, on_delete=models.CASCADE)
+
+    def quantitystr(self):
+        return "{} {}".format(self.quantity, dict(MEASUREMENT_UNITS).get(self.quantityType))
+
+    def categorystr(self):
+        return "{}".format(dict(CATEGORIES).get(self.category))
