@@ -12,7 +12,7 @@
 
         {% for fridge in fridgeLists %}
             <tr>
-                <td><a href="{% url 'fridge_edit' pk=fridge.id %}">{{ fridge.title }}</a></td>
+                <td><a href="{% url 'fridge_items' fridgePk=fridge.id %}">{{ fridge.title }}</a></td>
                 <td><a href="{% url 'fridge_edit' pk=fridge.id %}" class="btn btn-primary">Edit</a></td>
                 <td><a href="{% url 'delete_fridge' pk=fridge.id %}" class="btn btn-primary">Delete</a></td>
             </tr>

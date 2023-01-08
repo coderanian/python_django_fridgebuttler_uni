@@ -1,19 +1,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <a href="{% url 'fridge_item' %}" class="btn btn-primary">Add new entry</a>
+    <a href="{% url 'item_create'%}" class="btn btn-primary">Add new entry</a>
     <table class="table table-striped">
         <thead class="thead-dark">
         <tr>
             <th>Title</th>
             <th>Category</th>
+            <th>Quantity</th>
         </tr>
         </thead>
 
         {% for fridgeEntry in fridgeEntries %}
             <tr>
-                <td><a href="{% url 'fridge_item' %}">{{ fridgeEntry.title }}</a></td>
-                <td><a href="{% url 'fridge_item' %}">{{ fridgeEntry.category }}</a></td>
+                <td>{{ fridgeEntry.title }}</td>
+                <td>{{ fridgeEntry.category }}</td>
+                <td>{{ fridgeEntry.quantity }}</td>
+                <td><a href="{% url 'item_edit' itemPk=fridgeEntry.id %}" class="btn btn-primary">Edit</a></td>
+
             </tr>
         {% endfor %}
     </table>

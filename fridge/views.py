@@ -29,7 +29,8 @@ def get_fridge_lists(request):
     # Redirect to new list creation if no lists added
     if len(fridgeLists) == 0:
         return redirect('fridge_create')
-    return render(request, 'fridge_list/fridge_list.html', {'page_title': 'Overview of fridge lists', 'fridgeLists': fridgeLists})
+    return render(request, 'fridge_list/fridge_list.html',
+                  {'page_title': 'Overview of fridge lists', 'fridgeLists': fridgeLists})
 
 
 def edit_fridge_list(request, pk=None):
@@ -53,25 +54,27 @@ def delete_fridge(request, pk=None):
     fridge.delete()
     return HttpResponseRedirect(reverse_lazy('fridge_list'))
 
-def get_fridge_entries(request, pk=None):
-    if pk:
-        fridgeEntries = FridgeEntry.objects.all()
-        if len(fridgeEntries) == 0:
-            return redirect('fridge_item')
-    return render(request, 'fridge.html', {'page_title': 'Fridge List DUMMY'})
+
+def get_fridge_entries(request, fridgePk=None):
+    fridge = FridgeList.objects.get(pk=fridgePk)
+    items = fridge.fridge.all()
+    if len(items) == 0:
+        return redirect('item_create')
+    return render(request, 'fridge.html', {'page_title': f'Currently stored in {fridge.title}', 'fridgeEntries': items})
 
 
-def edit_fridge_entry(request, pk=None):
-    if pk:
-        fridgeEntry = FridgeEntry.objects.get(pk=pk)
+def edit_fridge_entry(request, pkItem=None, fridgePk=None):
+    if pkItem:
+        fridgeEntry = FridgeEntry.objects.get(pk=pkItem)
     else:
         fridgeEntry = FridgeEntry()
     if request.method == 'POST':
-        form = FridgeEntryForm(request.POST, instance=fridgeEntry)
+        fridge = FridgeList.objects.get(pk=fridgePk)
+        form = FridgeEntryForm(request.POST, instance=fridgeEntry, initial={'firdgeList': fridge.id})
         if form.is_valid():
             form.save()
             messages.success(request, 'Fridge entry saved!')
-            return HttpResponseRedirect(reverse_lazy('fridge_list'))
+            return HttpResponseRedirect(reverse_lazy(f'{fridgePk}/fridge_items'))
     else:
         form = FridgeListForm(instance=fridgeEntry)
     return render(request, "edit_fridge_item.html", {'page_title': 'Edit fridge item', 'form': form})

@@ -23,8 +23,10 @@ urlpatterns = [
     path('account', login, name='account'),
     path('register', register, name='registration'),
     path('fridge_list/', get_fridge_lists, name='fridge_list'),
-    #path('fridge_items/<int:pk>', get_fridge_entries, name='fridge_items'),
     path('fridge_edit/<int:pk>', edit_fridge_list, name='fridge_edit'),
     path('fridge_edit', edit_fridge_list, name='fridge_create'),
-    path('/delete/<int:pk>', delete_fridge, name='delete_fridge')
+    path('/delete/<int:pk>', delete_fridge, name='delete_fridge'),
+    path('<int:fridgePk>/fridge_items/', get_fridge_entries, name='fridge_items'),
+    path('/item_create/', edit_fridge_entry, name='item_create'),
+    path('item_edit/<int:itemPk>', edit_fridge_entry, name='item_edit'),
 ]

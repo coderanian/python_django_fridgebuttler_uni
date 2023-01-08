@@ -1,5 +1,5 @@
 from django.db import models
-
+import datetime
 
 # Create your models here.
 class Account(models.Model):
@@ -25,13 +25,13 @@ class FridgeEntry(models.Model):
     category = models.CharField(max_length=60)
     quantity = models.IntegerField()
     quantityType = models.CharField(max_length=60)
-    expirationDate = models.DateField()
+    expirationDate = models.DateField(default=datetime.date.today())
     # If open - check in category dict if long term or short term consumtion. If later max 3 days until expired
-    openedDate = models.DateField(blank=True)
+    openedDate = models.DateField(blank=True, null=True)
     # Check via method
-    expiringSoon = models.BooleanField()
-    expired = models.BooleanField()
-    # fridgeList = models.ForeignKey(FridgeList, on_delete=models.CASCADE)
+    expiringSoon = models.BooleanField(blank=True, default=False)
+    expired = models.BooleanField(blank=True, default=False)
+    fridgeList = models.ForeignKey(FridgeList, on_delete=models.CASCADE, related_name='fridge')
 
 
 class BuyList(models.Model):
