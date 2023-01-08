@@ -7,8 +7,8 @@
         {% csrf_token %}
         {% bootstrap_form form %}
         <div>
-            <button type="submit" onclick="location.href='fridge_list_overview'" class="btn btn-primary">Einloggen</button>
-            <a href={% url 'registration' %} class="btn btn-primary">Create a new account</a>
+            <button type="submit" onclick="location.href='{% url 'fridge_list' %}'" class="btn btn-primary">Einloggen</button>
+            <a href="{% url 'registration' %}" class="btn btn-primary">Create a new account</a>
         </div>
     </form>
 {% endblock %}

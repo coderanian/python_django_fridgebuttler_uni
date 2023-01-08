@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from fridge.views import *
 
 urlpatterns = [
@@ -22,7 +22,9 @@ urlpatterns = [
     path('', login, name='account'),
     path('account', login, name='account'),
     path('register', register, name='registration'),
-    path('fridge_list_overview/', get_fridge_lists, name='fridge_list_overview'),
-    path('fridge_list/<int:pk>', get_fridge_entries, name='fridge_list'),
-    path('fridge_item', edit_fridge_list, name='fridge_item')
+    path('fridge_list/', get_fridge_lists, name='fridge_list'),
+    #path('fridge_items/<int:pk>', get_fridge_entries, name='fridge_items'),
+    path('fridge_edit/<int:pk>', edit_fridge_list, name='fridge_edit'),
+    path('fridge_edit', edit_fridge_list, name='fridge_create'),
+    path('/delete/<int:pk>', delete_fridge, name='delete_fridge')
 ]

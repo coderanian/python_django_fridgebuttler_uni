@@ -21,15 +21,15 @@ def register(request):
         form.save()
         messages.success(request, 'Registration completed!')
         return HttpResponseRedirect(reverse_lazy('account'))
-    return render(request, "register.html", {'page_title': 'Registration', 'form': form})
+    return render(request, "fridge_list/../templates/register.html", {'page_title': 'Registration', 'form': form})
 
 
 def get_fridge_lists(request):
     fridgeLists = FridgeList.objects.all()
     # Redirect to new list creation if no lists added
     if len(fridgeLists) == 0:
-        return redirect('fridge_list')
-    return render(request, 'fridgelist.html', {'page_title': 'Overview of fridge lists', 'fridgeLists': fridgeLists})
+        return redirect('fridge_create')
+    return render(request, 'fridge_list/fridge_list.html', {'page_title': 'Overview of fridge lists', 'fridgeLists': fridgeLists})
 
 
 def edit_fridge_list(request, pk=None):
@@ -42,18 +42,24 @@ def edit_fridge_list(request, pk=None):
         if form.is_valid():
             form.save()
             messages.success(request, 'Fridge list saved!')
-            return HttpResponseRedirect(reverse_lazy('fridge_list_overview'))
+            return HttpResponseRedirect(reverse_lazy('fridge_list'))
     else:
         form = FridgeListForm(instance=fridgeList)
-    return render(request, "createFridgeList.html", {'page_title': 'Edit fridge list', 'form': form})
+    return render(request, "fridge_list/edit_fridge.html", {'page_title': 'Edit fridge list', 'form': form})
 
+
+def delete_fridge(request, pk=None):
+    fridge = FridgeList.objects.get(pk=pk)
+    fridge.delete()
+    return HttpResponseRedirect(reverse_lazy('fridge_list'))
 
 def get_fridge_entries(request, pk=None):
     if pk:
         fridgeEntries = FridgeEntry.objects.all()
         if len(fridgeEntries) == 0:
             return redirect('fridge_item')
-    return render(request, 'fridgeEntries.html', {'page_title': 'Fridge List DUMMY'})
+    return render(request, 'fridge.html', {'page_title': 'Fridge List DUMMY'})
+
 
 def edit_fridge_entry(request, pk=None):
     if pk:
@@ -68,4 +74,4 @@ def edit_fridge_entry(request, pk=None):
             return HttpResponseRedirect(reverse_lazy('fridge_list'))
     else:
         form = FridgeListForm(instance=fridgeEntry)
-    return render(request, "editFridgeEntry.html", {'page_title': 'Edit fridge item', 'form': form})
+    return render(request, "edit_fridge_item.html", {'page_title': 'Edit fridge item', 'form': form})
