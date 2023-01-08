@@ -60,13 +60,14 @@ def delete_fridge(request, pk=None):
 
 def get_fridge_entries(request, fridgePk=None):
     fridge = FridgeList.objects.get(pk=fridgePk)
-    items = fridge.fridge.all()
+    items = FridgeEntry.objects.filter(fridgeList=fridgePk)
     if len(items) == 0:
         return redirect('item_create', fridgePk=fridgePk)
-    return render(request, 'fridge_items', {'page_title': f'Currently stored in {fridge.title}', 'fridgeEntries': items})
+    return render(request, 'fridge.html', {'page_title': f'Currently stored in {fridge.title}', 'fridgeEntries': items})
 
 
-def edit_fridge_entry(request, itemPk=None, fridgePk=None):
+def edit_fridge_entry(request, **kwargs):
+    itemPk = kwargs['itemPk']
     if itemPk:
         fridgeEntry = FridgeEntry.objects.get(pk=itemPk)
     else:
@@ -74,19 +75,18 @@ def edit_fridge_entry(request, itemPk=None, fridgePk=None):
     if request.method == 'POST':
         form = FridgeEntryForm(request.POST, instance=fridgeEntry)
         if form.is_valid():
-            #newItem = form.save(commit=False)
-            #newItem.fridgeList = FridgeList.objects.get(pk=fridgePk)
-            newItem.save()
+            new_item = form.save(commit=False)
+            new_item.fridgeList = FridgeList.objects.get(id=kwargs['fridgePk'])
+            new_item.save()
             messages.success(request, 'Fridge entry saved!')
-            return redirect(request.META.get('HTTP_REFERER'))
     else:
         form = FridgeEntryForm(instance=fridgeEntry)
     return render(request, "edit_fridge_item.html", {'page_title': 'Edit fridge item', 'form': form})
 
 
-def delete_item(request, pkItem=None):
-    item = FridgeEntry.objects.get(pk=pkItem)
+def delete_item(request, itemPk=None, fridgePk=None):
+    item = FridgeEntry.objects.get(pk=itemPk)
     item.delete()
-    return HttpResponseRedirect(reverse_lazy('fridge_items'))
+    return redirect('fridge_items', fridgePk=fridgePk)
 
 

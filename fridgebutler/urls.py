@@ -28,6 +28,7 @@ urlpatterns = [
     path('profile/fridge_create', edit_fridge_list, name='fridge_create'),
     path('profile/fridge/<int:pk>/fridge_delete', delete_fridge, name='delete_fridge'),
     path('profile/fridge/<int:fridgePk>/fridge_items/', get_fridge_entries, name='fridge_items'),
-    path('profile/fridge/<int:fridgePk>/item_create/', edit_fridge_entry, name='item_create'),
-    path('profile/fridge/<int:fridgePk>/item_edit/<int:itemPk>', edit_fridge_entry, name='item_edit'),
+    path(r'profile/fridge/<int:fridgePk>/item_create/', edit_fridge_entry, name='item_create'),
+    path('profile/fridge/<int:fridgePk>/<int:itemPk>/item_edit/', edit_fridge_entry, name='item_edit'),
+    path('profile/fridge/<int:fridgePk>/item_edit/<int:itemPk>/item_delete', delete_item, name='item_delete'),
 ]

@@ -58,6 +58,11 @@ class FridgeEntry(models.Model):
     expired = models.BooleanField(blank=True, default=False)
     fridgeList = models.ForeignKey(FridgeList, on_delete=models.CASCADE, related_name='fridge')
 
+    def quantitystr(self):
+        return "{} {}".format(self.quantity, dict(MEASUREMENT_UNITS).get(self.quantityType))
+
+    def categorystr(self):
+        return "{}".format(dict(CATEGORIES).get(self.category))
 
 class BuyList(models.Model):
     # ID added as PK automatically upon creation in DB
