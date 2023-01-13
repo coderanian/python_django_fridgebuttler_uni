@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <a href="{% url 'item_create' %}" class="btn btn-primary">Add new entry</a>
+    <td><a href="" class="btn btn-primary">Shopping list</a></td>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+        <tr>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th colspan="3"></th>
+        </tr>
+        </thead>
+
+        {% for fridgeEntry in fridgeEntries %}
+            <tr>
+                <td>{{ fridgeEntry.title }}</td>
+                <td>{{ fridgeEntry.categorystr }}</td>
+                <td>{{ fridgeEntry.quantitystr }}</td>
+                <td><a href="{% url 'item_edit' itemPk=fridgeEntry.id fridgePk=fridgeEntry.fridgeList.id %}" class="btn btn-primary">Details</a></td>
+                <td><a href="" class="btn btn-primary">Add to shopping list</a></td>
+                <td><a href="{% url 'item_delete' itemPk=fridgeEntry.id fridgePk=fridgeEntry.fridgeList.id %}" class="btn btn-primary">Delete</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
