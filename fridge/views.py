@@ -1,12 +1,10 @@
 from django.shortcuts import render
-from fridge.models import *
 from fridge.forms import *
 from datetime import date, timedelta
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView
 
 CATEGORIES_EXPIRATION = (
     (1, 1),
@@ -38,12 +36,12 @@ def login(request):
 
 def register(request):
     account = Account()
-    form = LoginForm(request.POST, instance=account)
+    form = RegisterForm(request.POST, instance=account)
     if form.is_valid():
         form.save()
         messages.success(request, 'Registration completed!')
         return HttpResponseRedirect(reverse_lazy('login'))
-    return render(request, "registrationDummy", {'page_title': 'Registration', 'form': form})
+    return render(request, "register.html", {'page_title': 'Registration', 'form': form})
 
 
 def get_fridge_lists(request):

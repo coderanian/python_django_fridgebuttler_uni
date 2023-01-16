@@ -8,6 +8,10 @@ class LoginForm(ModelForm):
         exclude = ()
         labels = {'username': 'Username', 'pw': 'Password'}
 
+class RegisterForm(forms.Form):
+        model = Account
+        fields = {'username' : 'Username', 'email': 'E-Mail',
+                  'password': 'Password', 'password_repeat': 'Repeat password' }
 
 class FridgeListForm(ModelForm):
     class Meta:

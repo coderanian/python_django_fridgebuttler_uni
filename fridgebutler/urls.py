@@ -24,7 +24,7 @@ urlpatterns = [
     path('', login_redirect),
     path('profile/login/', login, name='login'),
     # To be reworked for proper user management
-    path('registerTest/', register, name='registrationDummy'),
+    path('register', register, name="register"),
     path('profile', get_fridge_lists, name='fridge_list'),
     path('profile/fridge/<int:pk>/fridge_edit', edit_fridge_list, name='fridge_edit'),
     path('profile/fridge_create', edit_fridge_list, name='fridge_create'),

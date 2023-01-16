@@ -1,7 +1,6 @@
 from django.db import models
-import datetime
+from django.utils import timezone
 
-# Create your models here.
 MEASUREMENT_UNITS = (
     (1, 'piece(s)'),
     (2, 'ml'),
@@ -31,10 +30,8 @@ CATEGORIES = (
 class Account(models.Model):
     # ID added as PK automatically upon creation in DB
     username = models.CharField(max_length=60)
-    # tbc.
     pw = models.CharField(max_length=60)
     # Get consolidated buy list by querying buylistentry on buylist on fridgelist on user
-
 
 class FridgeList(models.Model):
     # ID added as PK automatically upon creation in DB
