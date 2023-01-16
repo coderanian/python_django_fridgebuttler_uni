@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <h3 class="text-center p-5">{{ page_title }}</h3>
+
+    <div class="container px-5">
+        <table class="table text-center"
+            style="border-collapse: collapse;
+                border-radius: 1em;
+                overflow: hidden;"
+        >
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Category</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Expiration Date</th>
+            </tr>
+            </thead>
+
+            {% for fridgeEntry in fridgeEntries %}
+                <tr {% if fridgeEntry.expired == True %}
+                        style="background-color: #f0737f;"
+                    {% elif fridgeEntry.expiringSoon == True %}
+                        style="background-color: #e59221;"
+                    {% else %}
+                        style="background-color: white;"
+                    {% endif %}">
+                    <th scope="row" class="align-middle">{{ fridgeEntry.title }}</th>
+                    <td class="align-middle">{{ fridgeEntry.categorystr }}</td>
+                    <td class="align-middle">{{ fridgeEntry.quantitystr }}</td>
+                    <td class="align-middle">{{ fridgeEntry.expirationDate }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="container pt-3 px-5">
+        <div class="row">
+            <div class="col">
+                <button class="btn btn-lg btn-dark btn-block"
+                    onclick=location.href="{% url 'fridge_items' fridgePk=fridgeId %}">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
