@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container pt-3 px-5">
+        <div class="row">
+            <div class="col">
+                <button class="btn btn-md btn-dark btn-block"
+                    onclick=location.href="{% url 'item_create' fridgePk=fridgeId %}">
+                    <i class="fa fa-plus"></i> New item
+                </button>
+            </div>
+            <div class="col">
+                <button class="btn btn-md btn-dark btn-block"
+                    onclick=location.href="{% url 'shop_items' fridgePk=fridgeId %}" class="btn btn-primary">
+                    <i class="fa fa-bars"></i> Shopping List
+                </button>
+            </div>
+            <div class="col">
+                <button class="btn btn-md btn-dark btn-block"
+                    onclick=location.href="{% url 'fridge_list' %}" class="btn btn-primary">
+                    <i class="fa fa-arrow-left"></i> Overview
+                </button>
+            </div>
+            <div class="col">
+                <button class="btn btn-md btn-dark btn-block"
+                    onclick=location.href="{% url 'fridge_items' fridgePk=fridgeId sort_criteria='category' %}">
+                    <i class="fa fa-sort"></i> Sort: Category
+                </button>
+            </div>
+            <div class="col">
+                <button class="btn btn-md btn-dark btn-block"
+                    onclick=location.href="{% url 'fridge_items' fridgePk=fridgeId sort_criteria='expirationDate' %}">
+                    <i class="fa fa-sort"></i> Sort: Expiration
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="text-center p-5">{{ page_title }}</h3>
+
+    <div class="container px-5">
+        <table class="table text-center"
+            style="border-collapse: collapse;
+                border-radius: 1em;
+                overflow: hidden;"
+        >
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Category</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Expiration Date</th>
+                <th scope="col" colspan="3">Action</th>
+            </tr>
+            </thead>
+
+            {% for fridgeEntry in fridgeEntries %}
+                <tr {% if fridgeEntry.expired == True %}
+                        style="background-color: #f0737f;"
+                    {% elif fridgeEntry.expiringSoon == True %}
+                        style="background-color: #e59221;"
+                    {% else %}
+                        style="background-color: white;"
+                    {% endif %}">
+                    <th scope="row" class="align-middle">{{ fridgeEntry.title }}</th>
+                    <td class="align-middle">{{ fridgeEntry.categorystr }}</td>
+                    <td class="align-middle">{{ fridgeEntry.quantitystr }}</td>
+                    <td class="align-middle">{{ fridgeEntry.expirationDate }}</td>
+                    <td>
+                        <button class="btn btn-lg btn-dark"
+                            onclick=location.href="{% url 'item_edit' itemPk=fridgeEntry.id fridgePk=fridgeEntry.fridgeList.id %}">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                        <button class="btn btn-lg btn-dark"
+                                onclick=location.href="{% url 'add_to_shopping_list' itemPk=fridgeEntry.id fridgePk=fridgeEntry.fridgeList.id %}">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                        <button class="btn btn-lg btn-dark"
+                                onclick=location.href="{% url 'item_delete' itemPk=fridgeEntry.id fridgePk=fridgeEntry.fridgeList.id %}">
+                                <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

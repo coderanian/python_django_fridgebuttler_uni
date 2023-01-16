@@ -1,4 +1,5 @@
 {% load bootstrap4 %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -6,16 +7,33 @@
     <meta charset="UTF-8">
     <title>{{ page_title }}</title>
     {% bootstrap_css %}
+    <link rel="stylesheet" href="{% static 'fridge/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     {% bootstrap_javascript jquery='full' %}
 </head>
 <body>
+<nav class="navbar fixed-top bg-dark pb-5">
+    <div class="container-fluid">
+        <a href="#" class="navbar-brand" style="color:white">Fridgebutler</a>
+        <div class="row ms-auto mb-2 mb-lg-0">
+            <button class="btn btn-md btn-dark"><i class="fa fa-user-plus"></i> Sign Up</button>
+            <button onclick=location.href="{% url 'login' %}" class="btn btn-md btn-dark"><i class="fa fa-user-plus"></i> Login</button>
+        </div>
+    </div>
+</nav>
+
+
+<div class="container" style="padding-bottom: 10vh"></div>
 {% bootstrap_messages %}
-<h2>{{ page_title }}</h2>
+
 {% block content %}
     To fill by views
 {% endblock %}
-{% block footer %}
+
+<div class="container" style="padding-bottom: 20vh"></div>
+
+<footer class="bg-dark">
     Created by Konstantin Kuklin and Lasse Broer 2022
-{% endblock %}
+</footer>
 </body>
 </html>

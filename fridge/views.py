@@ -1,11 +1,29 @@
 from django.shortcuts import render
 from fridge.models import *
 from fridge.forms import *
+from datetime import date, timedelta
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView
+
+CATEGORIES_EXPIRATION = (
+    (1, 1),
+    (2, 1),
+    (3, 1),
+    (4, 0),
+    (5, 1),
+    (6, 1),
+    (7, 1),
+    (8, 1),
+    (9, 0),
+    (10, 0),
+    (11, 1),
+    (12, 0),
+    (13, 0),
+    (14, 0)
+)
 
 
 # Create your views here.
@@ -15,7 +33,7 @@ def login_redirect(request):
 
 def login(request):
     form = LoginForm()
-    return render(request, "account.html", {'page_title': 'Login into your account', 'form': form})
+    return render(request, "account/account.html", {'page_title': 'Login into your account', 'form': form})
 
 
 def register(request):
@@ -63,23 +81,43 @@ def delete_fridge(request, **kwargs):
     return redirect(request.META.get('HTTP_REFERER'))
 
 
+def get_expired_fridge_entries(request, **kwargs):
+    fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
+    items = FridgeEntry.objects.filter(fridgeList=fridge.id, expired=True)
+    if len(items) == 0:
+        return redirect('fridge_items', fridgePk=fridge.id)
+    return render(request, 'fridge_item/fridge_expired.html',
+                  {'page_title': f'Expired items in {fridge.title}', 'fridgeEntries': items, 'fridgeId': fridge.id})
+
+
 def get_fridge_entries(request, **kwargs):
     fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
-    items = FridgeEntry.objects.filter(fridgeList=fridge.id)
+    if 'sort_criteria' in kwargs:
+        items = FridgeEntry.objects.filter(fridgeList=fridge.id).order_by(kwargs['sort_criteria'])
+    else:
+        items = FridgeEntry.objects.filter(fridgeList=fridge.id)
     if len(items) == 0:
         return redirect('item_create', fridgePk=fridge.id)
-    return render(request, 'fridge.html',
+    today = date.today()
+    for item in items:
+        if CATEGORIES_EXPIRATION[item.category - 1][1] == 1:
+            if item.openedDate:
+                item.expirationDate = item.openedDate + timedelta(days=3)
+                item.save()
+            elif item.expirationDate is not None and today > item.expirationDate:
+                item.expired = True
+                item.save()
+            elif item.expirationDate is not None and today > (item.expirationDate - timedelta(days=3)):
+                item.expiringSoon = True
+                item.save()
+    return render(request, 'fridge_item/fridge.html',
                   {'page_title': f'Currently stored in {fridge.title}', 'fridgeEntries': items, 'fridgeId': fridge.id})
 
 
 def edit_fridge_entry(request, **kwargs):
     fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
     if 'itemPk' in kwargs:
-        itemPk = kwargs['itemPk']
-    else:
-        itemPk = None
-    if itemPk:
-        fridgeEntry = FridgeEntry.objects.get(pk=itemPk)
+        fridgeEntry = FridgeEntry.objects.get(pk=kwargs['itemPk'])
     else:
         fridgeEntry = FridgeEntry()
     if request.method == 'POST':
@@ -92,7 +130,7 @@ def edit_fridge_entry(request, **kwargs):
             return redirect('fridge_items', fridgePk=fridge.id)
     else:
         form = FridgeEntryForm(instance=fridgeEntry)
-    return render(request, "edit_fridge_item.html",
+    return render(request, "fridge_item/edit_fridge_item.html",
                   {'page_title': 'Edit fridge item', 'form': form, 'fridgePk': fridge.id})
 
 
@@ -116,11 +154,7 @@ def get_shopping_entries(request, **kwargs):
 def edit_shop_entry(request, **kwargs):
     fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
     if 'itemPk' in kwargs:
-        itemPk = kwargs['itemPk']
-    else:
-        itemPk = None
-    if itemPk:
-        shopEntry = BuyListEntry.objects.get(pk=itemPk)
+        shopEntry = BuyListEntry.objects.get(id=kwargs['itemPk'])
     else:
         shopEntry = BuyListEntry()
     if request.method == 'POST':
@@ -145,41 +179,26 @@ def delete_shopping_item(request, **kwargs):
 
 
 def add_entry_to_fridge(request, **kwargs):
-    fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
     item = BuyListEntry.objects.get(id=kwargs['itemPk'])
-    item_data = {
-        'title': item.title,
-        'category': item.category,
-        'quantity': item.quantity,
-        'quantityType': item.quantityType
-    }
-    if request.method == 'POST':
-        form = FridgeEntryForm(request.POST)
-        if form.is_valid():
-            new_item = form.save(commit=False)
-            new_item.fridgeList = fridge
-            new_item.save()
-            messages.success(request, 'Shopping list entry moved to fridge!')
-            return delete_shopping_item(request, **kwargs)
-    else:
-        form = FridgeEntryForm(initial=item_data)
-    return render(request, "edit_fridge_item.html",
-                  {'page_title': 'Edit fridge item', 'form': form})
+    new_item = FridgeEntry(
+        title=item.title,
+        category=item.category,
+        quantity=item.quantity,
+        quantityType=item.quantityType,
+        fridgeList=item.fridgeList)
+    new_item.save()
+    messages.success(request, 'Added to shopping list!')
+    return delete_shopping_item(request, **kwargs)
 
 
 def add_entry_to_shopping_list(request, **kwargs):
-    fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
     item = FridgeEntry.objects.get(id=kwargs['itemPk'])
-    item_data = {
-        'title': item.title,
-        'category': item.category,
-        'quantity': item.quantity,
-        'quantityType': item.quantityType
-    }
-    if request.method == 'POST':
-        form = BuyListEntryForm(request.POST)
-        new_item = form.save(commit=False)
-        new_item.fridgeList = fridge
-        new_item.save()
-        messages.success(request, 'Added to shopping list!')
-    return redirect('fridge_items', fridgePk=fridge.id)
+    new_item = BuyListEntry(
+        title=item.title,
+        category=item.category,
+        quantity=item.quantity,
+        quantityType=item.quantityType,
+        fridgeList=item.fridgeList)
+    new_item.save()
+    messages.success(request, 'Added to shopping list!')
+    return redirect('fridge_items', fridgePk=item.fridgeList.id)

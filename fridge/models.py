@@ -24,9 +24,9 @@ CATEGORIES = (
     (10, 'Desserts, Snacks & Sweets'),
     (11, 'Prepared food'),
     (12, 'Instant food'),
-    (13, 'Spices')
+    (13, 'Spices'),
+    (14, 'Condiments')
 )
-
 
 class Account(models.Model):
     # ID added as PK automatically upon creation in DB
@@ -51,7 +51,7 @@ class FridgeEntry(models.Model):
     category = models.IntegerField(choices=CATEGORIES)
     quantity = models.IntegerField()
     quantityType = models.IntegerField(choices=MEASUREMENT_UNITS, default=1)
-    expirationDate = models.DateField(default=datetime.date.today())
+    expirationDate = models.DateField(blank=True, null=True, default=None)
     # If open - check in category dict if long term or short term consumtion. If later max 3 days until expired
     openedDate = models.DateField(blank=True, null=True)
     # Check via method

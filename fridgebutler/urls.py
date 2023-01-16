@@ -16,6 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, re_path
 from fridge.views import *
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,7 +30,19 @@ urlpatterns = [
     path('profile/fridge_create', edit_fridge_list, name='fridge_create'),
     path('profile/fridge/<int:pk>/fridge_delete', delete_fridge, name='delete_fridge'),
     path('profile/fridge/<int:fridgePk>/fridge_items/', get_fridge_entries, name='fridge_items'),
-    path(r'profile/fridge/<int:fridgePk>/item_create/', edit_fridge_entry, name='item_create'),
+    path('profile/fridge/<int:fridgePk>/fridge_items/expired/', get_expired_fridge_entries, name='fridge_items_expired'),
+    path('profile/fridge/<int:fridgePk>/fridge_items/sort_by=<str:sort_criteria>/', get_fridge_entries, name='fridge_items'),
+    path('profile/fridge/<int:fridgePk>/item_create/', edit_fridge_entry, name='item_create'),
     path('profile/fridge/<int:fridgePk>/<int:itemPk>/item_edit/', edit_fridge_entry, name='item_edit'),
     path('profile/fridge/<int:fridgePk>/item_edit/<int:itemPk>/item_delete', delete_item, name='item_delete'),
-]
+    path('profile/fridge/<int:fridgePk>/fridge_items/<int:itemPk>/item_added/', add_entry_to_shopping_list,
+         name='add_to_shopping_list'),
+    path('profile/fridge/<int:fridgePk>/shopping_list', get_shopping_entries, name='shop_items'),
+    path('profile/fridge/<int:fridgePk>/shopping_list/item_create/', edit_shop_entry, name='shop_item_create'),
+    path('profile/fridge/<int:fridgePk>/shopping_list/<int:itemPk>/item_delete', delete_shopping_item,
+         name='shop_item_delete'),
+    path('profile/fridge/<int:fridgePk>/shopping_list/<int:itemPk>/item_edit/', edit_shop_entry, name='shop_item_edit'),
+    path('profile/fridge/<int:fridgePk>/shopping_list/<int:itemPk>/item_added/', add_entry_to_fridge,
+         name='add_to_fridge'),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+

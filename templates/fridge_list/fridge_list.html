@@ -1,21 +1,48 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <a href="{% url 'fridge_create' %}" class="btn btn-primary">Create new fridge list</a>
-    <a href="" class="btn btn-primary">Show full shopping list</a>
-    <table class="table table-striped">
-        <thead class="thead-dark">
-        <tr>
-            <th colspan="3">Title</th>
-        </tr>
-        </thead>
 
-        {% for fridge in fridgeLists %}
+    <div class="container pt-3 px-5">
+        <div class="row">
+            <div class="col">
+                <button class="btn btn-md btn-dark btn-block"
+                    onclick=location.href="{% url 'fridge_create' %}">
+                    <i class="fa fa-plus"></i> New item
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="text-center p-5">{{ page_title }}</h3>
+
+    <div class="container px-5">
+        <table class="table text-center"
+            style="border-collapse: collapse;
+                border-radius: 1em;
+                overflow: hidden;"
+        >
+            <thead class="thead-dark">
             <tr>
-                <td><a href="{% url 'fridge_items' fridgePk=fridge.id %}">{{ fridge.title }}</a></td>
-                <td><a href="{% url 'fridge_edit' pk=fridge.id %}" class="btn btn-primary">Edit</a></td>
-                <td><a href="{% url 'delete_fridge' pk=fridge.id %}" class="btn btn-primary">Delete</a></td>
+                <th scope="col">Title</th>
+                <th scope="col" colspan="2">Action</th>
             </tr>
-        {% endfor %}
-    </table>
+            </thead>
+
+            {% for fridge in fridgeLists %}
+                <tr class="bg-white">
+                    <th class="align-middle" scope="row"><a style="color:#f0737f" href="{% url 'fridge_items_expired' fridgePk=fridge.id %}">{{ fridge.title }}</a></th>
+                    <td class="align-middle">
+                        <button class="btn btn-lg btn-dark"
+                            onclick=location.href="{% url 'fridge_edit' pk=fridge.id %}">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                        <button class="btn btn-lg btn-dark"
+                            onclick=location.href="{% url 'delete_fridge' pk=fridge.id %}">
+                            <i class="fa fa-remove"></i>
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 {% endblock %}
