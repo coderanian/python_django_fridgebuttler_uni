@@ -1,10 +1,10 @@
+import django.contrib.auth
 from django.shortcuts import render
-from fridge.forms import *
 from datetime import date, timedelta
 from django.shortcuts import redirect
 from django.contrib import messages
-from django.http import HttpResponseRedirect
-from django.urls import reverse_lazy
+from django.contrib.auth import authenticate
+from .forms import *
 
 CATEGORIES_EXPIRATION = (
     (1, 1),
@@ -28,21 +28,36 @@ CATEGORIES_EXPIRATION = (
 def login_redirect(request):
     return redirect('login')
 
-
-def login(request):
+def loginUser(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            user = authenticate(request, username=form.cleaned_data.get('username'), password=form.cleaned_data.get('password'))
+            print(user)
+            if user is not None:
+                django.contrib.auth.login(request, user)
+                return redirect('fridge_list')
+            else:
+                messages.error(request, 'Combination between username and password does not exist')
     form = LoginForm()
     return render(request, "account/account.html", {'page_title': 'Login into your account', 'form': form})
 
-
 def register(request):
-    account = Account()
-    form = RegisterForm(request.POST, instance=account)
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'Registration completed!')
-        return HttpResponseRedirect(reverse_lazy('login'))
-    return render(request, "register.html", {'page_title': 'Registration', 'form': form})
+    form = CreateUserForm()
 
+    if request.method == 'POST':
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            user = form.cleaned_data.get('username')
+            messages.success(request, 'Account was created for ' + user)
+            return redirect('login')
+
+    return render(request, "account/register.html", {'page_title': 'Registration', 'form': form})
+
+def logoutUser(request):
+    logoutUser(request)
+    return redirect('login')
 
 def get_fridge_lists(request):
     fridgeLists = FridgeList.objects.all()

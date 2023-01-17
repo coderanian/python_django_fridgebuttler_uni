@@ -27,16 +27,8 @@ CATEGORIES = (
     (14, 'Condiments')
 )
 
-class Account(models.Model):
-    # ID added as PK automatically upon creation in DB
-    username = models.CharField(max_length=60)
-    pw = models.CharField(max_length=60)
-    # Get consolidated buy list by querying buylistentry on buylist on fridgelist on user
-
 class FridgeList(models.Model):
-    # ID added as PK automatically upon creation in DB
     title = models.CharField(max_length=60)
-    # user = models.ForeignKey(Account, on_delete=models.CASCADE)
 
 
 class FridgeEntry(models.Model):
