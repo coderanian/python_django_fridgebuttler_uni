@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', login_redirect),
     path('profile/login/', loginUser, name='login'),
+    path('profile/logout', logoutUser, name='logout'),
     # To be reworked for proper user management
     path('register',register, name="register"),
     path('profile', get_fridge_lists, name='fridge_list'),

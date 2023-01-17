@@ -5,6 +5,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from .forms import *
+from django.contrib.auth.decorators import login_required
 
 CATEGORIES_EXPIRATION = (
     (1, 1),
@@ -29,6 +30,9 @@ def login_redirect(request):
     return redirect('login')
 
 def loginUser(request):
+    if request.user.is_authenticated:
+        return redirect('fridge_list')
+
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -43,6 +47,9 @@ def loginUser(request):
     return render(request, "account/account.html", {'page_title': 'Login into your account', 'form': form})
 
 def register(request):
+    if request.user.is_authenticated:
+        return redirect('fridge_list')
+
     form = CreateUserForm()
 
     if request.method == 'POST':
@@ -56,9 +63,10 @@ def register(request):
     return render(request, "account/register.html", {'page_title': 'Registration', 'form': form})
 
 def logoutUser(request):
-    logoutUser(request)
+    django.contrib.auth.logout(request)
     return redirect('login')
 
+@login_required(login_url='login')
 def get_fridge_lists(request):
     fridgeLists = FridgeList.objects.all()
     # Redirect to new list creation if no lists added
@@ -68,6 +76,7 @@ def get_fridge_lists(request):
                   {'page_title': 'Overview of fridge lists', 'fridgeLists': fridgeLists})
 
 
+@login_required(login_url='login')
 def edit_fridge_list(request, **kwargs):
     if 'pk' in kwargs:
         pk = kwargs['pk']
@@ -87,13 +96,13 @@ def edit_fridge_list(request, **kwargs):
         form = FridgeListForm(instance=fridgeList)
     return render(request, "fridge_list/edit_fridge.html", {'page_title': 'Edit fridge list', 'form': form})
 
-
+@login_required(login_url='login')
 def delete_fridge(request, **kwargs):
     fridge = FridgeList.objects.get(pk=kwargs['pk'])
     fridge.delete()
     return redirect(request.META.get('HTTP_REFERER'))
 
-
+@login_required(login_url='login')
 def get_expired_fridge_entries(request, **kwargs):
     fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
     items = FridgeEntry.objects.filter(fridgeList=fridge.id, expired=True)
@@ -102,7 +111,7 @@ def get_expired_fridge_entries(request, **kwargs):
     return render(request, 'fridge_item/fridge_expired.html',
                   {'page_title': f'Expired items in {fridge.title}', 'fridgeEntries': items, 'fridgeId': fridge.id})
 
-
+@login_required(login_url='login')
 def get_fridge_entries(request, **kwargs):
     fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
     if 'sort_criteria' in kwargs:
@@ -126,7 +135,7 @@ def get_fridge_entries(request, **kwargs):
     return render(request, 'fridge_item/fridge.html',
                   {'page_title': f'Currently stored in {fridge.title}', 'fridgeEntries': items, 'fridgeId': fridge.id})
 
-
+@login_required(login_url='login')
 def edit_fridge_entry(request, **kwargs):
     fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
     if 'itemPk' in kwargs:
@@ -146,14 +155,14 @@ def edit_fridge_entry(request, **kwargs):
     return render(request, "fridge_item/edit_fridge_item.html",
                   {'page_title': 'Edit fridge item', 'form': form, 'fridgePk': fridge.id})
 
-
+@login_required(login_url='login')
 def delete_item(request, **kwargs):
     fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
     item = FridgeEntry.objects.get(id=kwargs['itemPk'])
     item.delete()
     return redirect('fridge_items', fridgePk=fridge.id)
 
-
+@login_required(login_url='login')
 def get_shopping_entries(request, **kwargs):
     fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
     items = BuyListEntry.objects.filter(fridgeList=fridge.id)
@@ -163,7 +172,7 @@ def get_shopping_entries(request, **kwargs):
                   {'page_title': f'Currently needed for {fridge.title}', 'shoppingEntries': items,
                    'fridgeId': fridge.id})
 
-
+@login_required(login_url='login')
 def edit_shop_entry(request, **kwargs):
     fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
     if 'itemPk' in kwargs:
@@ -184,6 +193,7 @@ def edit_shop_entry(request, **kwargs):
                   {'page_title': 'Edit fridge item', 'form': form, 'fridgePk': fridge.id})
 
 
+@login_required(login_url='login')
 def delete_shopping_item(request, **kwargs):
     fridge = FridgeList.objects.get(id=kwargs['fridgePk'])
     item = BuyListEntry.objects.get(id=kwargs['itemPk'])
@@ -191,6 +201,7 @@ def delete_shopping_item(request, **kwargs):
     return redirect('shop_items', fridgePk=fridge.id)
 
 
+@login_required(login_url='login')
 def add_entry_to_fridge(request, **kwargs):
     item = BuyListEntry.objects.get(id=kwargs['itemPk'])
     new_item = FridgeEntry(
@@ -204,6 +215,7 @@ def add_entry_to_fridge(request, **kwargs):
     return delete_shopping_item(request, **kwargs)
 
 
+@login_required(login_url='login')
 def add_entry_to_shopping_list(request, **kwargs):
     item = FridgeEntry.objects.get(id=kwargs['itemPk'])
     new_item = BuyListEntry(
