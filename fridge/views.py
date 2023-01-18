@@ -83,7 +83,9 @@ def edit_fridge_list(request, **kwargs):
     else:
         pk = None
     if pk:
-        fridgeList = FridgeList.objects.get(pk=pk)
+        fridgeList = FridgeList.objects.get(pk = pk)
+        if not fridgeList :
+            return redirect('fridge_list')
     else:
         fridgeList = FridgeList()
     if request.method == 'POST':

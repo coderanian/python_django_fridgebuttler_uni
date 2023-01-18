@@ -18,7 +18,7 @@ class FridgeListForm(forms.ModelForm):
     class Meta:
         model = FridgeList
         exclude = ()
-        labels = {'title': 'Title'}
+        fields = ['title']
 
 
 class FridgeEntryForm(forms.ModelForm):
