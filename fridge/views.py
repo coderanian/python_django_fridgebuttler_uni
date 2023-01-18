@@ -85,12 +85,8 @@ def get_fridge_lists(request):
 @login_required(login_url='login')
 def edit_fridge_list(request, **kwargs):
     if 'pk' in kwargs:
-        pk = kwargs['pk']
-    else:
-        pk = None
-    if pk:
         try:
-            fridge_list = FridgeList.objects.get(pk=pk, user=request.user)
+            fridge_list = FridgeList.objects.get(pk=kwargs['pk'], user=request.user)
         except FridgeList.DoesNotExist:
             return redirect('fridge_list')
     else:
