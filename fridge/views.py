@@ -83,19 +83,22 @@ def edit_fridge_list(request, **kwargs):
     else:
         pk = None
     if pk:
-        fridgeList = FridgeList.objects.get(pk = pk)
-        if not fridgeList :
+        try:
+            fridge_list = FridgeList.objects.get(pk=pk, user=request.user)
+        except FridgeList.DoesNotExist:
             return redirect('fridge_list')
     else:
-        fridgeList = FridgeList()
+        fridge_list = FridgeList()
+
     if request.method == 'POST':
-        form = FridgeListForm(request.POST, instance=fridgeList)
+        fridge_list.user = request.user;
+        form = FridgeListForm(request.POST, instance=fridge_list)
         if form.is_valid():
             form.save()
             messages.success(request, 'Fridge list saved!')
             return redirect('fridge_list')
     else:
-        form = FridgeListForm(instance=fridgeList)
+        form = FridgeListForm(instance=fridge_list)
     return render(request, "fridge_list/edit_fridge.html", {'page_title': 'Edit fridge list', 'form': form})
 
 @login_required(login_url='login')
