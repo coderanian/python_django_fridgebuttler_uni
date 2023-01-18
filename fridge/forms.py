@@ -24,10 +24,10 @@ class FridgeListForm(forms.ModelForm):
 class FridgeEntryForm(forms.ModelForm):
     class Meta:
         model = FridgeEntry
-        exclude = ('fridgeList', 'expiringSoon', 'expired')
+        exclude = ('fridgeList', 'expiringSoon', 'expired', 'user',)
 
 
 class BuyListEntryForm(forms.ModelForm):
     class Meta:
         model = BuyListEntry
-        exclude = ('fridgeList',)
+        exclude = ('fridgeList', 'user',)

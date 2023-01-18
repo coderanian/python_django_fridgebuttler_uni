@@ -48,6 +48,7 @@ class FridgeEntry(models.Model):
     expiringSoon = models.BooleanField(blank=True, default=False)
     expired = models.BooleanField(blank=True, default=False)
     fridgeList = models.ForeignKey(FridgeList, on_delete=models.CASCADE, related_name='fridge')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def quantitystr(self):
         return "{} {}".format(self.quantity, dict(MEASUREMENT_UNITS).get(self.quantityType))
@@ -61,6 +62,8 @@ class BuyList(models.Model):
     # Better fixed naming <FridgeList.title> Buy List
     title = models.CharField(max_length=60)
     fridgeList = models.ForeignKey(FridgeList, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
     # Get all entries via query
 
 
@@ -75,6 +78,8 @@ class BuyListEntry(models.Model):
     quantityType = models.IntegerField(choices=MEASUREMENT_UNITS, default=1)
     # Check if in fridge list by querying Name & Category in FrdigeEntry on FridgeList on BuyList on BuyListEntry
     fridgeList = models.ForeignKey(FridgeList, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
 
     def quantitystr(self):
         return "{} {}".format(self.quantity, dict(MEASUREMENT_UNITS).get(self.quantityType))
