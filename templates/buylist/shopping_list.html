@@ -43,7 +43,7 @@
                     <td class="align-middle">{{ shoppingEntry.quantitystr }}</td>
                     <td>
                         <button class="btn btn-lg btn-dark"
-                            onclick=location.href="{% url 'item_edit' itemPk=shoppingEntry.id fridgePk=shoppingEntry.fridgeList.id %}">
+                            onclick=location.href="{% url 'shop_item_edit' itemPk=shoppingEntry.id fridgePk=shoppingEntry.fridgeList.id %}">
                             <i class="fa fa-edit"></i>
                         </button>
                         <button class="btn btn-lg btn-dark"

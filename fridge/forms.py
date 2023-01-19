@@ -1,28 +1,33 @@
-from django.forms import *
 from fridge.models import *
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django import forms
+
+class LoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
 
 
-class LoginForm(ModelForm):
+class CreateUserForm(UserCreationForm):
     class Meta:
-        model = Account
-        exclude = ()
-        labels = {'username': 'Username', 'pw': 'Password'}
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
 
 
-class FridgeListForm(ModelForm):
+class FridgeListForm(forms.ModelForm):
     class Meta:
         model = FridgeList
         exclude = ()
-        labels = {'title': 'Title'}
+        fields = ['title']
 
 
-class FridgeEntryForm(ModelForm):
+class FridgeEntryForm(forms.ModelForm):
     class Meta:
         model = FridgeEntry
-        exclude = ('fridgeList', 'expiringSoon', 'expired')
+        exclude = ('fridgeList', 'expiringSoon', 'expired', 'user',)
 
 
-class BuyListEntryForm(ModelForm):
+class BuyListEntryForm(forms.ModelForm):
     class Meta:
         model = BuyListEntry
-        exclude = ('fridgeList',)
+        exclude = ('fridgeList', 'user',)
