@@ -3,6 +3,7 @@
 {% block content %}
 
     <div class="container pt-3 px-5">
+    {% if url_name != 'shop_items_consolidated' %}
         <div class="row">
             <div class="col">
                 <button class="btn btn-md btn-dark btn-block"
@@ -17,14 +18,26 @@
                 </button>
             </div>
         </div>
+        {% else %}
+        <div class="row">
+            <div class="col">
+                <button class="btn btn-md btn-dark btn-block"
+                    onclick=location.href="{% url 'fridge_list' %}" class="btn btn-primary">
+                    <i class="fa fa-arrow-left"></i> Overview
+                </button>
+            </div>
+        </div>
+    {% endif %}
     </div>
+
+
 
     <h3 class="text-center p-5">{{ page_title }}</h3>
 
     <div class="container px-5">
         <table class="table text-center"
             style="border-collapse: collapse;
-                border-radius: 1em;
+                border-radius: 0.5em;
                 overflow: hidden;"
         >
             <thead class="thead-dark">
