@@ -2,6 +2,7 @@ from fridge.models import *
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
+from bootstrap_datepicker_plus.widgets import DatePickerInput
 
 class LoginForm(forms.Form):
     username = forms.CharField()
@@ -25,9 +26,14 @@ class FridgeEntryForm(forms.ModelForm):
     class Meta:
         model = FridgeEntry
         exclude = ('fridgeList', 'expiringSoon', 'expired', 'user',)
+        widgets = {
+            'expirationDate': DatePickerInput(),
+            'openedDate': DatePickerInput()
+        }
 
 
 class BuyListEntryForm(forms.ModelForm):
     class Meta:
         model = BuyListEntry
         exclude = ('fridgeList', 'user',)
+
