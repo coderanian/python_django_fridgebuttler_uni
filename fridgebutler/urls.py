@@ -25,7 +25,7 @@ urlpatterns = [
     path('profile/login/', login_user, name='login'),
     path('profile/logout', logout_user, name='logout'),
     # To be reworked for proper user management
-    path('register',register, name="register"),
+    path('register', register, name="register"),
     path('profile', get_fridge_lists, name='fridge_list'),
     path('profile/fridge/<int:pk>/fridge_edit', edit_fridge_list, name='fridge_edit'),
     path('profile/fridge_create', edit_fridge_list, name='fridge_create'),
@@ -45,5 +45,7 @@ urlpatterns = [
     path('profile/fridge/<int:fridgePk>/shopping_list/<int:itemPk>/item_edit/', edit_shop_entry, name='shop_item_edit'),
     path('profile/fridge/<int:fridgePk>/shopping_list/<int:itemPk>/item_added/', add_entry_to_fridge,
          name='add_to_fridge'),
+    path('profile/fridge/shopping_list/', get_shopping_entries_consolidated,
+         name='shop_items_consolidated'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
