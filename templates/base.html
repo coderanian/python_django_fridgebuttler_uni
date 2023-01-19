@@ -10,9 +10,10 @@
     <link rel="stylesheet" href="{% static 'fridge/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     {% bootstrap_javascript jquery='full' %}
+    <link rel="script" href="{% static 'fridge/script.js' %}">
 </head>
 <body>
-<nav class="navbar fixed-top bg-dark pb-5">
+<nav class="navbar fixed-top bg-dark hide-on-scroll pb-5">
     <div class="container-fluid">
         <a href="#" class="navbar-brand" style="color:white">Fridgebutler</a>
 
@@ -34,7 +35,7 @@
 
 <div class="container" style="padding-bottom: 20vh"></div>
 
-<footer class="bg-dark">
+<footer class="bg-dark fixed-bottom">
     Created by Konstantin Kuklin and Lasse Broer 2022
 </footer>
 </body>
