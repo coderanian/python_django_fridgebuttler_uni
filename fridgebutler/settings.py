@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'fridge',
     'bootstrap4',
-    'fontawesomefree'
+    'fontawesomefree',
+    'bootstrap_datepicker_plus'
 ]
 
 MIDDLEWARE = [
