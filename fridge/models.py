@@ -33,6 +33,9 @@ class FridgeList(models.Model):
     title = models.CharField(max_length=60)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+class SecurityQuestions(models.Model):
+    answer = models.CharField(max_length=60)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
 class FridgeEntry(models.Model):
     class Meta:

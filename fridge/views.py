@@ -2,6 +2,7 @@ import re
 from urllib import parse
 
 import django.contrib.auth
+from django.contrib.auth.forms import SetPasswordForm
 from django.shortcuts import render
 from datetime import date, timedelta
 from django.shortcuts import redirect
@@ -50,7 +51,7 @@ def login_user(request):
             else:
                 messages.error(request, 'Combination between username and password does not exist')
     form = LoginForm()
-    return render(request, "account/account.html", {'page_title': 'Login into your account', 'form': form})
+    return render(request, "account/login.html", {'page_title': 'Login into your account', 'form': form})
 
 
 def register(request):
@@ -63,16 +64,59 @@ def register(request):
         form = CreateUserForm(request.POST)
         if form.is_valid():
             form.save()
-            user = form.cleaned_data.get('username')
-            messages.success(request, 'Account was created for ' + user)
+            username = form.cleaned_data.get('username')
+            user = User.objects.get(username=username)
+
+            safety_question = SecurityQuestions()
+            safety_question.user = user
+            safety_question.answer = form.cleaned_data.get('security_question')
+            safety_question.save()
+
+            messages.success(request, 'Account was created for ' + username)
             return redirect('login')
 
-    return render(request, "account/register.html", {'page_title': 'Registration', 'form': form})
+    return render(request, "account/account_form.html", {'page_title': 'Registration',
+                                                         'submit_button_text': 'Register',
+                                                         'form': form})
 
 
+@login_required(login_url='login')
 def logout_user(request):
     django.contrib.auth.logout(request)
     return redirect('login')
+
+def forgot_password(request):
+
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            try:
+                user = User.objects.get(email=email)
+                if user is not None:
+                    sq_answer = SecurityQuestions.objects.get(user=user)
+                    sq_form_value = form.cleaned_data.get('security_question')
+                    sq = ("" or sq_form_value)
+                    if sq_answer is not None:
+                        if sq_answer.answer.lower() == sq.lower():
+                            password1 = form.cleaned_data.get('password1')
+                            password2 = form.cleaned_data.get('password2')
+                            if password1 == password2:
+                                user.set_password(password1)
+                                user.save()
+                                messages.success(request, 'Successfully updated the password')
+                                return redirect('login')
+                messages.error(request, 'Combination of user and security question answer does not exists')
+                form = ForgotPasswordForm()
+            except User.DoesNotExist or SecurityQuestions.DoesNotExist:
+                form = ForgotPasswordForm()
+                messages.error(request, 'Combination of user and security question answer does not exists')
+    else:
+        form = ForgotPasswordForm()
+
+    return render(request, "account/account_form.html", {'page_title': 'Forgot password',
+                                                         'submit_button_text': 'Reset password',
+                                                         'form': form})
 
 
 @login_required(login_url='login')

@@ -26,6 +26,7 @@ urlpatterns = [
     path('profile/logout', logout_user, name='logout'),
     # To be reworked for proper user management
     path('register', register, name="register"),
+    path('forgotpassword', forgot_password, name="forgot_password"),
     path('profile', get_fridge_lists, name='fridge_list'),
     path('profile/fridge/<int:pk>/fridge_edit', edit_fridge_list, name='fridge_edit'),
     path('profile/fridge_create', edit_fridge_list, name='fridge_create'),
