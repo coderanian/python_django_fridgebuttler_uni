@@ -6,18 +6,16 @@ body{
     background: #977390;
     border-bottom: solid 1px #363635;
     height: 40px;
+    transition: top 0.3s;
 }
 
 footer{
     display: flex;
     align-items: center;
     justify-content: center;
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
     color: white;
     height: 10vh;
+    width: 100%;
     background: #977390;
     border-top: solid 1px #363635;
 }

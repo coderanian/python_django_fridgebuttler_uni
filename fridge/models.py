@@ -28,9 +28,11 @@ CATEGORIES = (
     (14, 'Condiments')
 )
 
+
 class FridgeList(models.Model):
     title = models.CharField(max_length=60)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
 
 class FridgeEntry(models.Model):
     class Meta:
@@ -79,7 +81,6 @@ class BuyListEntry(models.Model):
     # Check if in fridge list by querying Name & Category in FrdigeEntry on FridgeList on BuyList on BuyListEntry
     fridgeList = models.ForeignKey(FridgeList, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
 
     def quantitystr(self):
         return "{} {}".format(self.quantity, dict(MEASUREMENT_UNITS).get(self.quantityType))

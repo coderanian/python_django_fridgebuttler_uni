@@ -1,3 +1,6 @@
+import re
+from urllib import parse
+
 import django.contrib.auth
 from django.shortcuts import render
 from datetime import date, timedelta
@@ -6,6 +9,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate
 from .forms import *
 from django.contrib.auth.decorators import login_required
+from django.urls import resolve, reverse
 
 CATEGORIES_EXPIRATION = (
     (1, 1),
@@ -74,10 +78,9 @@ def logout_user(request):
 @login_required(login_url='login')
 def get_fridge_lists(request):
     try:
-        fridge_lists = FridgeList.objects.all()
+        fridge_lists = FridgeList.objects.filter(user=request.user)
     except FridgeList.DoesNotExist:
         return redirect('fridge_create')
-
     return render(request, 'fridge_list/fridge_list.html',
                   {'page_title': 'Overview of fridge lists', 'fridgeLists': fridge_lists})
 
@@ -121,9 +124,11 @@ def get_expired_fridge_entries(request, **kwargs):
         items = FridgeEntry.objects.filter(fridgeList=fridge.id, expired=True, user=request.user)
     except FridgeList.DoesNotExist or FridgeEntry.DoesNotExist:
         return redirect('fridge_list')
-
-    return render(request, 'fridge_item/fridge_expired.html',
-                  {'page_title': f'Expired items in {fridge.title}', 'fridgeEntries': items, 'fridgeId': fridge.id})
+    if bool(items) is False:
+        return redirect('fridge_items', fridgePk=fridge.id)
+    else:
+        return render(request, 'fridge_item/fridge_expired.html',
+                      {'page_title': f'Expired items in {fridge.title}', 'fridgeEntries': items, 'fridgeId': fridge.id})
 
 
 @login_required(login_url='login')
@@ -214,7 +219,19 @@ def get_shopping_entries(request, **kwargs):
         return redirect('shop_item_create', fridgePk=kwargs['fridgePk'])
     return render(request, 'buylist/shopping_list.html',
                   {'page_title': f'Currently needed for {fridge.title}', 'shoppingEntries': items,
-                   'fridgeId': fridge.id})
+                   'fridgeId': fridge.id,
+                   'url_name': resolve(request.path).url_name})
+
+
+@login_required(login_url='login')
+def get_shopping_entries_consolidated(request):
+    try:
+        items = BuyListEntry.objects.filter(user=request.user)
+    except FridgeList.DoesNotExist or BuyListEntry.DoesNotExist:
+        messages.error(request, 'Nothing on your shopping list, add items via created fridges!')
+    return render(request, 'buylist/shopping_list.html',
+                  {'page_title': f'Currently needed', 'shoppingEntries': items,
+                   'url_name': resolve(request.path).url_name})
 
 
 @login_required(login_url='login')
@@ -243,7 +260,7 @@ def edit_shop_entry(request, **kwargs):
             new_item = form.save(commit=False)
             new_item.fridgeList = fridge
             new_item.save()
-            messages.success(request, 'Shopping list entry saved!')
+            messages.success(resolve(request.path).url_name)
             return redirect('shop_items', fridgePk=fridge.id)
         else:
             form = BuyListEntryForm(instance=shop_entry)
@@ -258,6 +275,13 @@ def delete_shopping_item(request, **kwargs):
         item.delete()
     except FridgeList.DoesNotExist or BuyListEntry.DoesNotExist:
         messages.error(request, 'Shopping item could not be deleted, please try again later')
+    url_check = re.compile(r"(/fridge/shopping_list/)$")
+    if 'url_name' in kwargs:
+        url_name = kwargs['url_name']
+    else:
+        url_name = request.META.get('HTTP_REFERER')
+    if bool(url_check.search(url_name)) is True:
+        return redirect('shop_items_consolidated')
     return redirect('shop_items', fridgePk=kwargs['fridgePk'])
 
 
@@ -269,6 +293,7 @@ def add_entry_to_fridge(request, **kwargs):
         item = BuyListEntry.objects.get(id=kwargs['itemPk'], user=request.user)
     except BuyListEntry.DoesNotExist:
         return redirect('shop_items', fridgePk=kwargs['itemPk'])
+    url_name = request.META.get('HTTP_REFERER')
     new_item = FridgeEntry(
         title=item.title,
         category=item.category,
@@ -277,8 +302,8 @@ def add_entry_to_fridge(request, **kwargs):
         fridgeList=item.fridgeList,
         user=request.user)
     new_item.save()
-    messages.success(request, 'Added to shopping list!')
-    return delete_shopping_item(request, **kwargs)
+    messages.success(request, 'Added to fridge and marked as bought!')
+    return delete_shopping_item(request, url_name=url_name, **kwargs)
 
 
 @login_required(login_url='login')
