@@ -13,8 +13,7 @@ This application helps the users to manage their fridges and shopping lists.
 Each user can create and multiple fridge lists. Each fridge lists has associated items overview and dedicated shopping
 list.
 
-## Required packages
-
+## Installation
 Please refer to requirements.txt for required packages.
 
 - asgiref==3.6.0
@@ -28,6 +27,14 @@ Please refer to requirements.txt for required packages.
 - sqlparse==0.4.3
 - typing_extensions==4.4.0
 - tzdata==2022.7
+
+## Starting the application
+The web application is using local SQLite database. In order to ensure proper execution, migrate data model changes with manage.py
+1. run manage.py
+2. makemigrations
+3. migrate
+4. collectstatic 
+5. runserver
 
 ## What is this project?
 
