@@ -12,6 +12,7 @@ from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.urls import resolve, reverse
 
+# Touples for expirtion check - 1 = perishable category, 0 = non-perishable
 CATEGORIES_EXPIRATION = (
     (1, 1),
     (2, 1),
@@ -85,8 +86,8 @@ def logout_user(request):
     django.contrib.auth.logout(request)
     return redirect('login')
 
-def forgot_password(request):
 
+def forgot_password(request):
     if request.method == 'POST':
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
@@ -134,10 +135,12 @@ def edit_fridge_list(request, **kwargs):
     if 'pk' in kwargs:
         try:
             fridge_list = FridgeList.objects.get(pk=kwargs['pk'], user=request.user)
+            page_title = f'Edit fridge "{fridge_list.title}"'
         except FridgeList.DoesNotExist:
             return redirect('fridge_list')
     else:
         fridge_list = FridgeList()
+        page_title = 'Create new fridge'
 
     if request.method == 'POST':
         fridge_list.user = request.user
@@ -148,7 +151,7 @@ def edit_fridge_list(request, **kwargs):
             return redirect('fridge_list')
     else:
         form = FridgeListForm(instance=fridge_list)
-    return render(request, "fridge_list/edit_fridge.html", {'page_title': 'Edit fridge list', 'form': form})
+    return render(request, "fridge_list/edit_fridge.html", {'page_title': page_title, 'form': form})
 
 
 @login_required(login_url='login')
@@ -185,28 +188,42 @@ def get_fridge_entries(request, **kwargs):
         if 'sort_criteria' in kwargs:
             items = FridgeEntry.objects.filter(fridgeList=fridge.id, user=request.user) \
                 .order_by(kwargs['sort_criteria'])
-            print(items)
         else:
             items = FridgeEntry.objects.filter(fridgeList=fridge.id, user=request.user)
-            print(items)
-        if len(items) == 0:
-            return redirect('item_create', fridgePk=fridge.id)
-
+    # Redirect to item edit view if fridge list is empty
     except FridgeEntry.DoesNotExist:
         return redirect('item_create', fridgePk=fridge.id)
 
     today = date.today()
     for item in items:
         if CATEGORIES_EXPIRATION[item.category - 1][1] == 1:
-            if item.openedDate:
-                item.expirationDate = item.openedDate + timedelta(days=3)
-                item.save()
-            elif item.expirationDate is not None and today > item.expirationDate:
+            # Mark as expired for dynamic CSS if expiration date passed current date
+            if item.expirationDate is not None and today > item.expirationDate:
                 item.expired = True
                 item.save()
-            elif item.expirationDate is not None and today > (item.expirationDate - timedelta(days=3)):
+            # Allow date change in case of error, otherwise item is always marked as expired
+            else:
+                item.expired = False
+                item.save()
+
+            # If item category is perishable and is opened autoamticaly set expiration date to today + 3 days
+            if item.expired == False and item.openedDate:
+                date_new = item.openedDate + timedelta(days=3)
+                # New expiration date can't be bigger than item's expiration date
+                if date_new < item.expirationDate:
+                    item.expirationDate = date_new
+                    item.save()
+
+            # Mark as soon to expire for dynamic CSS if expiration date in 3 days
+            if item.expirationDate is not None and today > (
+                    item.expirationDate - timedelta(days=3)):
                 item.expiringSoon = True
                 item.save()
+            # Allow date change in case of error, otherwise item is always marked as expiringSoon
+            else:
+                item.expiringSoon = False
+                item.save()
+
     return render(request, 'fridge_item/fridge.html',
                   {'page_title': f'Currently stored in {fridge.title}', 'fridgeEntries': items, 'fridgeId': fridge.id})
 
@@ -220,12 +237,14 @@ def edit_fridge_entry(request, **kwargs):
             fridge = FridgeList.objects.get(id=kwargs['fridgePk'], user=request.user)
         except FridgeList.DoesNotExist:
             return redirect('fridge_list')
-
+    # Check if create new item or edit existing one based on kwargs
     if 'itemPk' not in kwargs:
         fridge_entry = FridgeEntry()
+        page_title = f'Fridge "{fridge.title}" is empty, create your first entry!'
     else:
         try:
             fridge_entry = FridgeEntry.objects.get(pk=kwargs['itemPk'], user=request.user)
+            page_title = f'Edit "{fridge_entry.title}"'
         except FridgeEntry.DoesNotExist:
             return redirect('fridge_items', fridge.id)
 
@@ -233,6 +252,7 @@ def edit_fridge_entry(request, **kwargs):
         fridge_entry.user = request.user
         entry_form = FridgeEntryForm(request.POST, instance=fridge_entry)
         if entry_form.is_valid():
+            # Do not update DB until fridge.id fk is updated with kwargs variable
             new_item = entry_form.save(commit=False)
             new_item.fridgeList = fridge
             new_item.save()
@@ -241,7 +261,7 @@ def edit_fridge_entry(request, **kwargs):
     else:
         form = FridgeEntryForm(instance=fridge_entry)
     return render(request, "fridge_item/edit_fridge_item.html",
-                  {'page_title': 'Edit fridge item', 'form': form, 'fridgePk': fridge.id})
+                  {'page_title': page_title, 'form': form, 'fridgePk': fridge.id})
 
 
 @login_required(login_url='login')
@@ -288,28 +308,30 @@ def edit_shop_entry(request, **kwargs):
             return redirect('fridge_list')
     else:
         return redirect('fridge_list')
+    # Check if create new item or edit existing one based on kwargs
     if 'itemPk' in kwargs:
         try:
             shop_entry = BuyListEntry.objects.get(id=kwargs['itemPk'])
             form = BuyListEntryForm(instance=shop_entry)
+            page_title = f'Edit "{shop_entry.title}"'
         except BuyListEntry.DoesNotExist:
             return redirect('fridge_list')
     else:
         shop_entry = BuyListEntry()
-
+        page_title = f'Shopping list for "{fridge.title}" is empty, create your first entry!'
     if request.method == 'POST':
         shop_entry.user = request.user
         form = BuyListEntryForm(request.POST, instance=shop_entry)
         if form.is_valid():
+            # Do not update DB until fridge.id fk is updated with kwargs variable
             new_item = form.save(commit=False)
             new_item.fridgeList = fridge
             new_item.save()
-            messages.success(resolve(request.path).url_name)
             return redirect('shop_items', fridgePk=fridge.id)
         else:
             form = BuyListEntryForm(instance=shop_entry)
     return render(request, "buylist/edit_shop_item.html",
-                  {'page_title': 'Edit fridge item', 'form': form, 'fridgePk': fridge.id})
+                  {'page_title': page_title, 'form': form, 'fridgePk': fridge.id})
 
 
 @login_required(login_url='login')
@@ -320,10 +342,12 @@ def delete_shopping_item(request, **kwargs):
     except FridgeList.DoesNotExist or BuyListEntry.DoesNotExist:
         messages.error(request, 'Shopping item could not be deleted, please try again later')
     url_check = re.compile(r"(/fridge/shopping_list/)$")
+    # If function called from URL of consolidated shopping list redirect to it instead of shopping list for fridge
     if 'url_name' in kwargs:
         url_name = kwargs['url_name']
     else:
         url_name = request.META.get('HTTP_REFERER')
+    # Get original URL function was called from via regex check
     if bool(url_check.search(url_name)) is True:
         return redirect('shop_items_consolidated')
     return redirect('shop_items', fridgePk=kwargs['fridgePk'])
@@ -338,6 +362,7 @@ def add_entry_to_fridge(request, **kwargs):
     except BuyListEntry.DoesNotExist:
         return redirect('shop_items', fridgePk=kwargs['itemPk'])
     url_name = request.META.get('HTTP_REFERER')
+    # Prefill model fridgeEntry item with data from buyListEntry
     new_item = FridgeEntry(
         title=item.title,
         category=item.category,
@@ -358,6 +383,7 @@ def add_entry_to_shopping_list(request, **kwargs):
         item = FridgeEntry.objects.get(id=kwargs['itemPk'], user=request.user)
     except BuyListEntry.DoesNotExist:
         return redirect('fridge_items', fridgePk=kwargs['itemPk'])
+    # Prefill model buyListEntry item with data from fridgeEntry
     new_item = BuyListEntry(
         title=item.title,
         category=item.category,

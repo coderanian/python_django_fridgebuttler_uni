@@ -18,15 +18,17 @@
         <a href="#" class="navbar-brand" style="color:white">Fridgebutler</a>
 
         {% if user.is_authenticated %}
-        <div class="row ms-auto mb-2 mb-lg-0">
-            <button onclick=location.href="{% url 'logout' %}" class="btn btn-md btn-dark"><i class="fa fa-user"></i> Logout</button>
-        </div>
+            <div class="row ms-auto mb-2 mb-lg-0">
+                <button onclick=location.href="{% url 'logout' %}" class="btn btn-md btn-dark"><i
+                        class="fa fa-user"></i> Logout
+                </button>
+            </div>
         {% endif %}
     </div>
 </nav>
 
 
-<div class="container" style="padding-bottom: 100px"></div>
+<div class="container" style="padding-bottom: 100px;"></div>
 {% bootstrap_messages %}
 
 {% block content %}
