@@ -7,7 +7,9 @@
     <form action="" enctype="multipart/form-data" method="post" class="form">
         <!--Use tokens to prevent CSRF during login-->
         {% csrf_token %}
-        {% bootstrap_form form %}
+        <div class="container px-5">
+            {% bootstrap_form form %}
+        </div>
         <div class="container pt-3 px-5">
             <div class="row">
                 <div class="col">
